@@ -1,6 +1,8 @@
 import pycutest
 import numpy as np
 
+# TODO: add number of iterations and number of times objective function and gradient are evaluated
+
 
 def armijo_step(problem, x, d, step, gamma, delta):
     """
@@ -18,7 +20,6 @@ def armijo_step(problem, x, d, step, gamma, delta):
     f, g = problem.obj(x, gradient=True)
     while problem.obj(x + step * d) > f + gamma * step * np.dot(g, d):
         step = step * delta
-
     return step
 
 
@@ -79,7 +80,6 @@ def strong_wolfe_step(problem, x, d, gamma, sigma):
                 ub = alpha
             elif abs(dot_phi_alpha) <= sigma * abs(dot_phi_zero):   # strong Wolfe condition is satisfied
                 satisfied = True
-
     return alpha
 
 
@@ -123,9 +123,8 @@ def qn_method(problem, x, eps, hess, gamma, sigma, update_rule, direct=True):
 
     :return: stationary point
     """
-    i = 0
     while np.linalg.norm(problem.grad(x)) > eps:
-        i += 1
+
         obj, grad = problem.obj(x, True)
         if direct:
             d = - np.dot(np.linalg.inv(hess), grad)
@@ -142,7 +141,6 @@ def qn_method(problem, x, eps, hess, gamma, sigma, update_rule, direct=True):
         hess = update_rule(hess, y, s, direct)
         x = new_x
 
-    print(f"Found min in {i} iterations:\n x: {x}\n Gradient norm: {np.linalg.norm(problem.grad(x))}")
     return x
 
 
@@ -217,52 +215,14 @@ def BFGS_formula(hess, y, s, direct):
         second = (np.linalg.multi_dot([np.array([s]).transpose(), np.array([y]), hess]) +
                   np.linalg.multi_dot([hess, np.array([y]).transpose(), np.array([s])])) / sy
 
-        return hess + first + second
+        return hess + first - second
 
 
 if __name__ == '__main__':
 
+    prob = pycutest.import_problem("BOX")
 
-    # # Find unconstrained, variable-dimension problems
-    # probs = pycutest.find_problems(objective='other', constraints='unconstrained', regular=True, origin='academic')
-    #
-    # # print("\n".join(sorted(probs)))
-    # print(len(probs))
-
-
-    box = pycutest.import_problem('BOX', sifParams={'N':10})
-
-    x = np.ones(10)
-    f, g = box.obj(x, True)
-    id = np.identity(10)
-
-    problem = pycutest.import_problem('BOX', sifParams={'N':10})
-    alpha = np.inf
-    gamma = 0.3
-    sigma = 0.7
-    eps = 0.1
-    d = -g
-    # strong_wolfe_grad_descent(box, x, eps, gamma, sigma)
-    # print(np.dot(np.array([x]), np.array([x]).transpose()))
-    # print(np.inner(x, x))
-    # print(np.identity(10) @ np.identity(10))
-
-    # qn_method(box, x, eps, np.identity(10), gamma, sigma, Broyden_formula, False)
-    BFGS_formula(np.identity(10), np.random.rand(10), np.random.rand(10), False)
-    hess = np.identity(10)
-    grad = problem.grad(x)
-    d = - np.dot(hess, grad)
-    # print(d)
-
-    d = - hess.dot(np.array([grad]).transpose())
-    # print(d)
-    #
-    # print(np.linalg.norm(box.grad(start)))
-    # min_point = armijo_grad_descent(box, start, 0.01, 1, 0.5, 0.2)
-    #
-    # print("Stationary point found at ", min_point)
-
-
+    print(prob)
 
 
 
