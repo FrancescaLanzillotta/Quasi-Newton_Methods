@@ -2,14 +2,13 @@ import pycutest
 import numpy as np
 
 
-def armijo_step(problem, x, d, step, gamma, delta):
+def armijo_step(problem, x, d, gamma, delta):
     """
     This function determines the length of the step as to satisfy the Armijo rule.
 
     :param problem: current pycutest problem
     :param x: starting point
     :param d: descent direction
-    :param step: initial length of the step, with step > 0
     :param gamma: parameter used in the Armijo condition, with 0 < gamma < 1
     :param delta: reduction factor of the step at each iteration, with 0 < delta < 1
 
@@ -19,13 +18,14 @@ def armijo_step(problem, x, d, step, gamma, delta):
 
     f, g = problem.obj(x, gradient=True)
     obj_count = grad_count = 1
-    while problem.obj(x + step * d) > f + gamma * step * np.dot(g, d):
-        step = step * delta
+    alpha = 1
+    while problem.obj(x + alpha * d) > f + gamma * alpha * np.dot(g, d):
+        alpha = alpha * delta
         obj_count += 1
-    return step, obj_count, grad_count
+    return alpha, obj_count, grad_count
 
 
-def armijo_grad_descent(problem, x, eps, step, gamma, delta):
+def armijo_grad_descent(problem, x, eps, gamma, delta):
     """
     This function implements the gradient descent method with Armijo line search. When the norm of the gradient falls
     below a certain threshold eps, the algorithm stops and returns the stationary point found.
@@ -33,7 +33,6 @@ def armijo_grad_descent(problem, x, eps, step, gamma, delta):
     :param problem: current pycutest problem
     :param x: starting point
     :param eps: stopping threshold
-    :param step: initial length of the step, with step > 0
     :param gamma: parameter used in the armijo_step function
     :param delta: reduction factor used in the armijo_step function
 
@@ -48,11 +47,11 @@ def armijo_grad_descent(problem, x, eps, step, gamma, delta):
         if np.linalg.norm(grad) <= eps:
             satisfied = True
         else:
-            a_step, a_obj_count, a_grad_count = armijo_step(problem, x, -grad, step, gamma, delta)
+            alpha, a_obj_count, a_grad_count = armijo_step(problem, x, -grad, gamma, delta)
             obj_count += a_obj_count
             grad_count += a_grad_count
-            print("Armijo step found: ", a_step)
-            x = x - a_step * grad
+            print("Armijo step found: ", alpha)
+            x = x - alpha * grad
             it += 1
     return x, it, obj_count, grad_count
 
