@@ -276,14 +276,16 @@ if __name__ == '__main__':
     #
     # print(len(probs))
     
-    prob = pycutest.import_problem("BOX", sifParams={'N': 10})
+    prob = pycutest.import_problem('EG2')
 
     print(prob)
+    #
 
-    min, iters, objs, grads = strong_wolfe_grad_descent(prob, np.ones(10), 0.01, 0.1, 0.3)
 
-    print(f"Stationary Point: {min}\nObjective function value: {prob.obj(min)}\nIterations: {iters}"
-          f"\nObjective function evaluations: {objs}\nGradient evaluations {grads}\n")
+    # min, iters, objs, grads = strong_wolfe_grad_descent(prob, np.ones(10), 0.01, 0.1, 0.3)
+    #
+    # print(f"Stationary Point: {min}\nObjective function value: {prob.obj(min)}\nIterations: {iters}"
+    #       f"\nObjective function evaluations: {objs}\nGradient evaluations {grads}\n")
 
 
 
